@@ -23,8 +23,8 @@ const ExpandableTip = ({ addHighlight }: ExpandableTipProps) => {
   } = usePdfHighlighterContext();
 
   useLayoutEffect(() => {
-    updateTipPosition!();
-  }, [compact]);
+    updateTipPosition?.();
+  }, [compact, updateTipPosition]);
 
   return (
     <div className="Tip">
@@ -34,7 +34,7 @@ const ExpandableTip = ({ addHighlight }: ExpandableTipProps) => {
           onClick={() => {
             setCompact(false);
             selectionRef.current = getCurrentSelection();
-            selectionRef.current!.makeGhostHighlight();
+            selectionRef.current?.makeGhostHighlight();
           }}
         >
           Add highlight
@@ -43,17 +43,19 @@ const ExpandableTip = ({ addHighlight }: ExpandableTipProps) => {
         <CommentForm
           placeHolder="Your comment..."
           onSubmit={(input) => {
-            addHighlight(
-              {
-                content: selectionRef.current!.content,
-                type: selectionRef.current!.type,
-                position: selectionRef.current!.position,
-              },
-              input,
-            );
+            if (selectionRef.current) {
+              addHighlight(
+                {
+                  content: selectionRef.current.content,
+                  type: selectionRef.current.type,
+                  position: selectionRef.current.position,
+                },
+                input
+              );
 
-            removeGhostHighlight();
-            setTip(null);
+              removeGhostHighlight();
+              setTip(null);
+            }
           }}
         />
       )}

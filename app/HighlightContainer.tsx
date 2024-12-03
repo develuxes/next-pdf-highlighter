@@ -79,8 +79,9 @@ const HighlightContainer = ({
     <MonitoredHighlightContainer
       highlightTip={highlightTip}
       key={highlight.id}
-      children={component}
-    />
+    >
+      {component}
+    </MonitoredHighlightContainer>
   );
 };
 

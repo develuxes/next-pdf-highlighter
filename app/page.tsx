@@ -1,5 +1,5 @@
-"use client"
-import React, { MouseEvent, useEffect, useRef, useState } from "react";
+"use client";
+import React, { MouseEvent, useEffect, useRef, useState, useCallback } from "react";
 import CommentForm from "./CommentForm";
 import ContextMenu, { ContextMenuProps } from "./ContextMenu";
 import ExpandableTip from "./ExpandableTip";
@@ -24,10 +24,9 @@ const PRIMARY_PDF_URL = "/sample.pdf";
 
 const getNextId = () => String(Math.random()).slice(2);
 
-const parseIdFromHash = () => process.browser ? document.location.hash.slice("#highlight-".length):"";
+const parseIdFromHash = () => (typeof window !== 'undefined' ? document.location.hash.slice("#highlight-".length) : "");
 
-const resetHash = () => process.browser && (document.location.hash = "");
-
+const resetHash = () => typeof window !== 'undefined' && (document.location.hash = "");
 
 const App = () => {
   const [url, setUrl] = useState(PRIMARY_PDF_URL);
@@ -36,9 +35,7 @@ const App = () => {
   );
   const currentPdfIndexRef = useRef(0);
   const [contextMenu, setContextMenu] = useState<ContextMenuProps | null>(null);
-  const [pdfScaleValue, setPdfScaleValue] = useState<number | undefined>(
-    undefined,
-  );
+  const [pdfScaleValue, setPdfScaleValue] = useState<number | undefined>(undefined);
   const [highlightPen, setHighlightPen] = useState<boolean>(false);
 
   // Refs for PdfHighlighter utilities
@@ -58,11 +55,10 @@ const App = () => {
         setContextMenu(null);
       }
     };
-
-    document.addEventListener("click", handleClick);
+    if (typeof window !== 'undefined') document.addEventListener("click", handleClick);
 
     return () => {
-      document.removeEventListener("click", handleClick);
+      if (typeof window !== 'undefined') document.removeEventListener("click", handleClick);
     };
   }, [contextMenu]);
 
@@ -106,9 +102,10 @@ const App = () => {
     setHighlights([]);
   };
 
-  const getHighlightById = (id: string) => {
+  // Wrap 'getHighlightById' in useCallback
+  const getHighlightById = useCallback((id: string) => {
     return highlights.find((highlight) => highlight.id === id);
-  };
+  }, [highlights]); // Now, highlights is a dependency
 
   // Open comment tip and update highlight with new user input
   const editComment = (highlight: ViewportHighlight<CommentedHighlight>) => {
@@ -132,23 +129,23 @@ const App = () => {
     highlighterUtilsRef.current.toggleEditInProgress(true);
   };
 
-  // Scroll to highlight based on hash in the URL
-  const scrollToHighlightFromHash = () => {
+  // Use useCallback to prevent unnecessary function re-creations
+  const scrollToHighlightFromHash = useCallback(() => {
     const highlight = getHighlightById(parseIdFromHash());
 
     if (highlight && highlighterUtilsRef.current) {
       highlighterUtilsRef.current.scrollToHighlight(highlight);
     }
-  };
+  }, [getHighlightById]); // Now, scrollToHighlightFromHash depends on getHighlightById
 
   // Hash listeners for autoscrolling to highlights
   useEffect(() => {
-    if(process.browser) {
+    if (typeof window !== 'undefined') {
       window.addEventListener("hashchange", scrollToHighlightFromHash);
     }
 
     return () => {
-      if(process.browser) {
+      if (typeof window !== 'undefined') {
         window.removeEventListener("hashchange", scrollToHighlightFromHash);
       }
     };

@@ -1,4 +1,5 @@
 import React from "react";
+import Image from 'next/image';
 import type { Highlight } from "react-pdf-highlighter-extended";
 import "./style/Sidebar.css";
 import { CommentedHighlight } from "./types";
@@ -16,9 +17,7 @@ const updateHash = (highlight: Highlight) => {
 // declare const APP_VERSION: string;
 
 const Sidebar = ({
-  highlights,
-  toggleDocument,
-  resetHighlights,
+  highlights
 }: SidebarProps) => {
   return (
     <div className="sidebar" style={{ width: "25vw", maxWidth: "500px" }}>
@@ -50,10 +49,13 @@ const Sidebar = ({
                     className="highlight__image__container"
                     style={{ marginTop: "0.5rem" }}
                   >
-                    <img
+                    <Image
                       src={highlight.content.image}
-                      alt={"Screenshot"}
+                      alt="Screenshot"
                       className="highlight__image"
+                      width={500} // specify a width for the image
+                      height={300} // specify a height for the image
+                      layout="intrinsic" // ensures the image maintains its aspect ratio
                     />
                   </div>
                 )}
